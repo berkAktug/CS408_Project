@@ -1,14 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace cs408_server
@@ -23,7 +18,8 @@ namespace cs408_server
         int serverPort = 0;
         Thread thrAccept;
 
-        string username_1, username_2;
+        List<string> userNameList = new List<string>();
+`
 
         static Socket serverSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
         static List<Socket> clientSockets = new List<Socket>();
@@ -119,32 +115,83 @@ namespace cs408_server
         {
             bool connected = true;
             Socket n = socketList[socketList.Count - 1];
+            Byte[] buffer = new byte[64];
+            int rec = n.Receive(buffer);
+
+            if (rec <= 0)
+            {
+                throw new SocketException();
+            }
+
+
+            string userName = Encoding.Default.GetString(buffer);
+            userName = userName.Substring(0, userName.IndexOf("\0"));
+
 
             while (connected)
             {
                 try
                 {
-                    Byte[] buffer = new byte[64];
-                    int rec = n.Receive(buffer);
+                    box_report.Text = "User name: " + userName + " connected.";
+                    userNameList.Add(userName);
+
+                    buffer = new byte[64];
+                    rec = n.Receive(buffer);
 
                     if (rec <= 0)
                     {
                         throw new SocketException();
                     }
 
-                    string newmessage = Encoding.Default.GetString(buffer);
-                    newmessage = newmessage.Substring(0, newmessage.IndexOf("\0"));
-                    Console.Write("Client: " + newmessage + "\r\n");
+                    string s = Encoding.Default.GetString(buffer);
+                    s = s.Substring(0, s.IndexOf("\0"));
+                    int fileSize = Int32.Parse(s);
+
+
+                    buffer = new byte[128];
+                    rec = n.Receive(buffer);
+
+                    if (rec <= 0)
+                    {
+                        throw new SocketException();
+                    }
+
+                    s = Encoding.Default.GetString(buffer);
+                    s = s.Substring(0, s.IndexOf("\0"));
+
+                    string fileName = s;
+
+                    buffer = new byte[fileSize + 1];
+                    rec = n.Receive(buffer);
+
+                    if (rec <= 0)
+                    {
+                        throw new SocketException();
+                    }
+
+                    s = Encoding.Default.GetString(buffer);
+                    s = s.Substring(0, s.IndexOf("\0"));
+
+                    //                    string fileContent = s;
+
                 }
                 catch
                 {
                     if (!terminating)
-                        Console.Write("Client has disconnected...\n");
+                    {
+                        box_report.Text = "User: " + userName + " has disconnected...\n";
+                        for (int i = 0; i < userNameList.Count; i++)
+                        {
+                            if (userNameList[i] == userName)
+                                userNameList.Remove(userName);
+                        }
+                    }
                     n.Close();
                     socketList.Remove(n);
                     connected = false;
                 }
             }
+
         }
 
 
@@ -155,21 +202,6 @@ namespace cs408_server
                 box_report.Text = "Server has been closed.";
                 server.Close();
             }
-
-            /*            while (!terminating)
-                        {
-                            string message = "";
-                            try
-                            {
-                                if (message != "")
-                                    BroadCastMessage(message);
-                            }
-                            catch
-                            {
-                                terminating = true;
-                                server.Close();
-                            }
-                        }   */
         }
     }
 }

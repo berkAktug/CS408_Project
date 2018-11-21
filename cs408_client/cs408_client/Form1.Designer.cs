@@ -30,7 +30,7 @@ namespace cs408_client
         /// </summary>
         private void InitializeComponent()
         {
-            this.richTextBox1 = new System.Windows.Forms.RichTextBox();
+            this.box_report = new System.Windows.Forms.RichTextBox();
             this.box_nick = new System.Windows.Forms.TextBox();
             this.box_ip = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
@@ -43,15 +43,16 @@ namespace cs408_client
             this.label5 = new System.Windows.Forms.Label();
             this.btn_connect = new System.Windows.Forms.Button();
             this.btn_disconnect = new System.Windows.Forms.Button();
+            this.btn_sendmessage = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
-            // richTextBox1
+            // box_report
             // 
-            this.richTextBox1.Location = new System.Drawing.Point(391, 12);
-            this.richTextBox1.Name = "richTextBox1";
-            this.richTextBox1.Size = new System.Drawing.Size(397, 258);
-            this.richTextBox1.TabIndex = 0;
-            this.richTextBox1.Text = "";
+            this.box_report.Location = new System.Drawing.Point(391, 12);
+            this.box_report.Name = "box_report";
+            this.box_report.Size = new System.Drawing.Size(397, 258);
+            this.box_report.TabIndex = 0;
+            this.box_report.Text = "event log";
             // 
             // box_nick
             // 
@@ -140,7 +141,7 @@ namespace cs408_client
             // 
             // btn_connect
             // 
-            this.btn_connect.Location = new System.Drawing.Point(95, 319);
+            this.btn_connect.Location = new System.Drawing.Point(16, 319);
             this.btn_connect.Name = "btn_connect";
             this.btn_connect.Size = new System.Drawing.Size(198, 70);
             this.btn_connect.TabIndex = 13;
@@ -150,7 +151,7 @@ namespace cs408_client
             // 
             // btn_disconnect
             // 
-            this.btn_disconnect.Location = new System.Drawing.Point(522, 319);
+            this.btn_disconnect.Location = new System.Drawing.Point(590, 319);
             this.btn_disconnect.Name = "btn_disconnect";
             this.btn_disconnect.Size = new System.Drawing.Size(198, 70);
             this.btn_disconnect.TabIndex = 14;
@@ -158,11 +159,21 @@ namespace cs408_client
             this.btn_disconnect.UseVisualStyleBackColor = true;
             this.btn_disconnect.Click += new System.EventHandler(this.btn_disconnect_Click);
             // 
+            // btn_sendmessage
+            // 
+            this.btn_sendmessage.Location = new System.Drawing.Point(319, 319);
+            this.btn_sendmessage.Name = "btn_sendmessage";
+            this.btn_sendmessage.Size = new System.Drawing.Size(182, 70);
+            this.btn_sendmessage.TabIndex = 15;
+            this.btn_sendmessage.Text = "Send Message";
+            this.btn_sendmessage.UseVisualStyleBackColor = true;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 450);
+            this.Controls.Add(this.btn_sendmessage);
             this.Controls.Add(this.btn_disconnect);
             this.Controls.Add(this.btn_connect);
             this.Controls.Add(this.box_answer);
@@ -175,7 +186,7 @@ namespace cs408_client
             this.Controls.Add(this.label1);
             this.Controls.Add(this.box_ip);
             this.Controls.Add(this.box_nick);
-            this.Controls.Add(this.richTextBox1);
+            this.Controls.Add(this.box_report);
             this.Name = "Form1";
             this.Text = "Form1";
             this.ResumeLayout(false);
@@ -200,7 +211,7 @@ namespace cs408_client
 
         #endregion
 
-        private System.Windows.Forms.RichTextBox richTextBox1;
+        private System.Windows.Forms.RichTextBox box_report;
         private System.Windows.Forms.TextBox box_nick;
         private System.Windows.Forms.TextBox box_ip;
         private System.Windows.Forms.Label label1;
@@ -213,6 +224,7 @@ namespace cs408_client
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.Button btn_connect;
         private System.Windows.Forms.Button btn_disconnect;
+        private System.Windows.Forms.Button btn_sendmessage;
     }
 }
 
