@@ -60,7 +60,6 @@ namespace cs408_client
             this.box_nick.Name = "box_nick";
             this.box_nick.Size = new System.Drawing.Size(119, 20);
             this.box_nick.TabIndex = 1;
-            this.box_nick.TextChanged += new System.EventHandler(this.Nickbox_TextChanged);
             // 
             // box_ip
             // 
@@ -68,7 +67,6 @@ namespace cs408_client
             this.box_ip.Name = "box_ip";
             this.box_ip.Size = new System.Drawing.Size(119, 20);
             this.box_ip.TabIndex = 2;
-            this.box_ip.TextChanged += new System.EventHandler(this.IPbox_TextChanged);
             // 
             // label1
             // 
@@ -103,7 +101,6 @@ namespace cs408_client
             this.box_port.Name = "box_port";
             this.box_port.Size = new System.Drawing.Size(119, 20);
             this.box_port.TabIndex = 6;
-            this.box_port.TextChanged += new System.EventHandler(this.Portbox_TextChanged);
             // 
             // label3
             // 
@@ -192,21 +189,6 @@ namespace cs408_client
             this.ResumeLayout(false);
             this.PerformLayout();
 
-        }
-
-        private void Portbox_TextChanged(object sender, EventArgs e)
-        {
-            throw new NotImplementedException();
-        }
-
-        private void IPbox_TextChanged(object sender, EventArgs e)
-        {
-            throw new NotImplementedException();
-        }
-
-        private void Nickbox_TextChanged(object sender, EventArgs e)
-        {
-            throw new NotImplementedException();
         }
 
         #endregion

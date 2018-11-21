@@ -19,7 +19,7 @@ namespace cs408_server
         Thread thrAccept;
 
         List<string> userNameList = new List<string>();
-`
+
 
         static Socket serverSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
         static List<Socket> clientSockets = new List<Socket>();
@@ -123,10 +123,21 @@ namespace cs408_server
                 throw new SocketException();
             }
 
-
             string userName = Encoding.Default.GetString(buffer);
             userName = userName.Substring(0, userName.IndexOf("\0"));
 
+            foreach (string s in userNameList)
+            {
+                if (s == userName)
+                {
+                    connected = false;
+                    box_report.Text = "User: " + userName + " is already connected.";
+                    buffer = Encoding.Default.GetBytes("sie");
+                    n.Send(buffer);
+                    Thread.Sleep(500);
+                    n.Close();
+                }
+            }
 
             while (connected)
             {

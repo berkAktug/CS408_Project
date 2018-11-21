@@ -25,7 +25,6 @@ namespace cs408_client
         {
             box_report.Text = "Please enter the server's IP, port number and your user name.";
 
-
             TextBox.CheckForIllegalCrossThreadCalls = false;
 
             btn_connect.Enabled = true;
