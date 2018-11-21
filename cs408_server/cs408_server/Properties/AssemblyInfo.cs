@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("Cs408_Project")]
+[assembly: AssemblyTitle("cs408_server")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("Cs408_Project")]
+[assembly: AssemblyProduct("cs408_server")]
 [assembly: AssemblyCopyright("Copyright ©  2018")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("f9997e96-e547-4587-83e0-b47903dfa5e8")]
+[assembly: Guid("e0f8ec3e-68a2-4dc1-8cc5-b5cf1928136e")]
 
 // Version information for an assembly consists of the following four values:
 //

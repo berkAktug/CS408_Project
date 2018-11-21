@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace Cs408_Project.Properties
+namespace cs408_client.Properties
 {
 
 

@@ -4,10 +4,10 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{F9997E96-E547-4587-83E0-B47903DFA5E8}</ProjectGuid>
+    <ProjectGuid>{DF8488E4-83FE-4E9B-BF21-CD8E89CE70BB}</ProjectGuid>
     <OutputType>WinExe</OutputType>
-    <RootNamespace>Cs408_Project</RootNamespace>
-    <AssemblyName>Cs408_Project</AssemblyName>
+    <RootNamespace>cs408_client</RootNamespace>
+    <AssemblyName>cs408_client</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
