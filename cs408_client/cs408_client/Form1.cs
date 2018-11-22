@@ -43,7 +43,7 @@ namespace cs408_client
                 client.Connect(IP, PORT);
                 SendString(box_send.Text);
 
-                box_report.AppendText("Connected to server.");
+                box_report.AppendText("\nConnected to server.");
 
                 thrReceive = new Thread(Receive);
                 thrReceive.Start();
@@ -56,8 +56,8 @@ namespace cs408_client
             }
             catch
             {
-                box_report.AppendText("Cannot connected to the specified server.");
-                box_report.AppendText("terminating...");
+                box_report.AppendText("\nCannot connected to the specified server.");
+                box_report.AppendText("\nterminating...");
             }
         }
 
@@ -83,7 +83,7 @@ namespace cs408_client
 
                     if (newmessage == "dublicateNick")
                     {
-                        box_report.AppendText("Username is already exist.");
+                        box_report.AppendText("\nUsername is already exist.");
 
                         client.Close();
 
@@ -94,13 +94,19 @@ namespace cs408_client
                     else if (newmessage == "ask a question")
                     {
                         box_report.AppendText("\n" + newmessage + " and give the answer as second input.");
+                        SendString("question and answer");
+                    }
+                    else if (newmessage == "answer the question")
+                    {
+                        box_report.AppendText("\nPlease answer the following question:\n" + newmessage);
+                        SendString("Answer");
                     }
                 }
                 catch
                 {
                     if (!terminating)
                     {
-                        box_report.AppendText("Connection has been terminated...");
+                        box_report.AppendText("\nConnection has been terminated...");
 
                         client.Close();
 
@@ -108,7 +114,6 @@ namespace cs408_client
                         btn_disconnect.Enabled = false;
                         btn_sendmessage.Enabled = false;
                     }
-
                     connected = false;
                 }
             }
@@ -117,7 +122,7 @@ namespace cs408_client
         private void btn_disconnect_Click(object sender, EventArgs e)
         {
             terminating = true;
-            box_report.AppendText("Goodbye.");
+            box_report.AppendText("\nGoodbye.");
             client.Close();
 
             btn_disconnect.Enabled = false;

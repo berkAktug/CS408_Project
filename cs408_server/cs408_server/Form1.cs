@@ -10,16 +10,17 @@ namespace cs408_server
 {
     public partial class Form1 : Form
     {
-
         bool terminating = false;
+        private string question, answer, guess;
         bool accept = true;
         Socket server;
         List<Socket> socketList = new List<Socket>();
 
         int counter = 0;
-        bool connected1 = false, connected2 = false;
         int serverPort;
         Thread thrAccept;
+
+        private static Mutex mut = new Mutex();
 
         List<string> userNameList = new List<string>();
 
@@ -35,20 +36,6 @@ namespace cs408_server
             box_ip.ReadOnly = true;
             btn_close.Enabled = false;
         }
-
-        //public void LoopClients()
-        //{
-        //    while (_isRunning)
-        //    {
-        //        // wait for client connection
-        //        TcpClient newClient = _server.AcceptTcpClient();
-
-        //        // client found.
-        //        // create a thread to handle communication
-        //        Thread t = new Thread(new ParameterizedThreadStart(HandleClient));
-        //        t.Start(newClient);
-        //    }
-        //}
 
         private string GetMyIP()
         {
@@ -84,7 +71,6 @@ namespace cs408_server
                 richTextBox1.AppendText("\nCannot create a server with the specified port number\n Check the port number and try again.");
                 richTextBox1.AppendText("\nterminating...");
             }
-
         }
 
         private void infiniteServerInput()
@@ -107,6 +93,12 @@ namespace cs408_server
             }
         }
 
+        void ask_question()
+        {
+            byte[] buffer = Encoding.Default.GetBytes("ask a question");
+            socketList[counter % 2].Send(buffer);
+        }
+
         private void Accept()
         {
             while (accept)
@@ -114,7 +106,7 @@ namespace cs408_server
                 try
                 {
                     socketList.Add(server.Accept());
-                    richTextBox1.AppendText("\nNew Client connected.\n");
+                    richTextBox1.AppendText("\nNew Client connected.");
                     Thread thrReceive;
                     thrReceive = new Thread(Receive);
                     thrReceive.Start();
@@ -157,15 +149,14 @@ namespace cs408_server
                 }
             }
 
+            if (connected)
+                richTextBox1.AppendText("\nUser name: " + userName + " connected.");
             while (connected)
             {
                 try
                 {
-                    //if(socketList[0].Connected && !connected1)
-                    //{
-                    richTextBox1.AppendText("\nUser name: " + userName + " connected.");
-                    connected1 = true;
-                    //}
+                    //richTextBox1.AppendText("\nUser name: " + userName + " connected.");
+
                     userNameList.Add(userName);
 
                     buffer = new byte[64];
@@ -175,13 +166,56 @@ namespace cs408_server
                     {
                         throw new SocketException();
                     }
+
                     if (userNameList.Count == 2)
                     {
-                        if (counter %6 == 0)
+                        ask_question();
+                        if (Encoding.Default.GetString(buffer) == "question and answer")
+                        {
+                            ask_question();
+                            mut.WaitOne();
+                            // Simulate some work.
+                            Thread.Sleep(500);
+                            byte[] tempbuffer = new byte[124];
+                            int tempreceive = socketList[counter % 2].Receive(tempbuffer);
+                            question = Encoding.Default.GetString(buffer);
+                            tempbuffer = new byte[124];
+                            tempreceive = socketList[counter % 2].Receive(tempbuffer);
+                            answer = Encoding.Default.GetString(buffer);
+                            mut.ReleaseMutex();
+
+                            byte[] t_buffer = Encoding.Default.GetBytes("aswer the question");
+                            socketList[(counter+1) % 2].Send(t_buffer);
+
+                            richTextBox1.AppendText("\nQuestion to be asked: " + question + "\nThe Correct answer: " + answer);
+                            richTextBox1.AppendText("\nSending Question " + question + " to " + userNameList[(counter + 1) % 2]);
+                        }
+                        else if (Encoding.Default.GetString(buffer) == "Answer")
+                        {
+                            richTextBox1.AppendText("\n Asked the question: " + question + "to user " + userNameList[(counter + 1) % 2]);
+
+                            mut.WaitOne();
+                            // Simulate some work.
+                            Thread.Sleep(500);
+                            byte[] tempbuffer = new byte[124];
+                            int tempreceive = socketList[(counter + 1) % 2].Receive(tempbuffer);
+                            guess = Encoding.Default.GetString(buffer);
+                            mut.ReleaseMutex();
+                            richTextBox1.AppendText("\n"+ userNameList[(counter + 1) % 2] + " guessed " + guess);
+
+                            if (guess.ToLower() == answer.ToLower())
+                            {
+                                BroadCastMessage("\n" + userNameList[(counter + 1) % 2] + " guessed correctly");
+                            }
+                            else
+                            {
+                                BroadCastMessage("\n" + userNameList[(counter + 1) % 2] + " guessed correctly");
+                            }
+                            counter++;
+                        }
+                        else
                         {
                             richTextBox1.AppendText("\nSent \"ask a question\" to user: " + userNameList[0]);
-                            socketList[0].Send(Encoding.Default.GetBytes("ask a question"));
-                            counter++;
                         }
                     }
                 }
