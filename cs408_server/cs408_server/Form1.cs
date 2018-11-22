@@ -25,7 +25,6 @@ namespace cs408_server
         {
             InitializeComponent();
             Load += Form1_Load;
-
         }
 
         private void Form1_Load(object sender, EventArgs e)
@@ -49,8 +48,6 @@ namespace cs408_server
 
         private void btn_start_Click(object sender, EventArgs e)
         {
-
-            //richTextBox1.AppendText("Started listening for incoming connections.");
             serverPort = Int32.Parse(box_port.Text);
             server = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             try
@@ -58,16 +55,13 @@ namespace cs408_server
                 server.Bind(new IPEndPoint(IPAddress.Any, serverPort));
                 richTextBox1.AppendText("\nStarted listening for incoming connections.");
                 server.Listen(3); //the parameter here is maximum length of the pending connections queue
-                thrAccept = new Thread(Accept);
+                thrAccept = new Thread(new ThreadStart (Accept));
                 thrAccept.Start();
                 btn_start.Enabled = false;
                 btn_close.Enabled = true;
-
                 terminating = false;
-
                 //                thrServer = new Thread(new ThreadStart(infiniteServerInput));
                 //                thrServer.Start();
-
             }
             catch
             {
@@ -191,11 +185,6 @@ namespace cs408_server
             btn_close.Enabled = false;
             btn_start.Enabled = true;
             terminating = true;
-        }
-
-        private void richTextBox1_TextChanged(object sender, EventArgs e)
-        {
-
         }
     }
 }

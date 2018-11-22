@@ -31,16 +31,12 @@ namespace cs408_client
         private void InitializeComponent()
         {
             this.box_report = new System.Windows.Forms.RichTextBox();
-            this.box_nick = new System.Windows.Forms.TextBox();
             this.box_ip = new System.Windows.Forms.TextBox();
-            this.label1 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.label4 = new System.Windows.Forms.Label();
             this.box_port = new System.Windows.Forms.TextBox();
             this.label3 = new System.Windows.Forms.Label();
-            this.box_question = new System.Windows.Forms.RichTextBox();
-            this.box_answer = new System.Windows.Forms.RichTextBox();
-            this.label5 = new System.Windows.Forms.Label();
+            this.box_send = new System.Windows.Forms.RichTextBox();
             this.btn_connect = new System.Windows.Forms.Button();
             this.btn_disconnect = new System.Windows.Forms.Button();
             this.btn_sendmessage = new System.Windows.Forms.Button();
@@ -48,39 +44,23 @@ namespace cs408_client
             // 
             // box_report
             // 
-            this.box_report.Location = new System.Drawing.Point(391, 12);
+            this.box_report.Location = new System.Drawing.Point(17, 172);
             this.box_report.Name = "box_report";
-            this.box_report.Size = new System.Drawing.Size(397, 258);
+            this.box_report.Size = new System.Drawing.Size(469, 258);
             this.box_report.TabIndex = 0;
             this.box_report.Text = "event log";
             // 
-            // box_nick
-            // 
-            this.box_nick.Location = new System.Drawing.Point(95, 55);
-            this.box_nick.Name = "box_nick";
-            this.box_nick.Size = new System.Drawing.Size(119, 20);
-            this.box_nick.TabIndex = 1;
-            // 
             // box_ip
             // 
-            this.box_ip.Location = new System.Drawing.Point(95, 89);
+            this.box_ip.Location = new System.Drawing.Point(40, 40);
             this.box_ip.Name = "box_ip";
             this.box_ip.Size = new System.Drawing.Size(119, 20);
             this.box_ip.TabIndex = 2;
             // 
-            // label1
-            // 
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(13, 55);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(29, 13);
-            this.label1.TabIndex = 3;
-            this.label1.Text = "Nick";
-            // 
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(13, 96);
+            this.label2.Location = new System.Drawing.Point(14, 43);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(17, 13);
             this.label2.TabIndex = 4;
@@ -89,7 +69,7 @@ namespace cs408_client
             // label4
             // 
             this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(12, 133);
+            this.label4.Location = new System.Drawing.Point(181, 43);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(26, 13);
             this.label4.TabIndex = 7;
@@ -97,7 +77,7 @@ namespace cs408_client
             // 
             // box_port
             // 
-            this.box_port.Location = new System.Drawing.Point(95, 130);
+            this.box_port.Location = new System.Drawing.Point(213, 40);
             this.box_port.Name = "box_port";
             this.box_port.Size = new System.Drawing.Size(119, 20);
             this.box_port.TabIndex = 6;
@@ -105,42 +85,25 @@ namespace cs408_client
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(12, 180);
+            this.label3.Location = new System.Drawing.Point(14, 112);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(49, 13);
+            this.label3.Size = new System.Drawing.Size(76, 13);
             this.label3.TabIndex = 9;
-            this.label3.Text = "Question";
+            this.label3.Text = "Send to server";
             // 
-            // box_question
+            // box_send
             // 
-            this.box_question.Location = new System.Drawing.Point(95, 177);
-            this.box_question.Name = "box_question";
-            this.box_question.Size = new System.Drawing.Size(258, 21);
-            this.box_question.TabIndex = 10;
-            this.box_question.Text = "";
-            // 
-            // box_answer
-            // 
-            this.box_answer.Location = new System.Drawing.Point(95, 249);
-            this.box_answer.Name = "box_answer";
-            this.box_answer.Size = new System.Drawing.Size(258, 21);
-            this.box_answer.TabIndex = 12;
-            this.box_answer.Text = "";
-            // 
-            // label5
-            // 
-            this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(13, 249);
-            this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(42, 13);
-            this.label5.TabIndex = 11;
-            this.label5.Text = "Answer";
+            this.box_send.Location = new System.Drawing.Point(109, 104);
+            this.box_send.Name = "box_send";
+            this.box_send.Size = new System.Drawing.Size(258, 21);
+            this.box_send.TabIndex = 10;
+            this.box_send.Text = "";
             // 
             // btn_connect
             // 
-            this.btn_connect.Location = new System.Drawing.Point(16, 319);
+            this.btn_connect.Location = new System.Drawing.Point(17, 436);
             this.btn_connect.Name = "btn_connect";
-            this.btn_connect.Size = new System.Drawing.Size(198, 70);
+            this.btn_connect.Size = new System.Drawing.Size(120, 50);
             this.btn_connect.TabIndex = 13;
             this.btn_connect.Text = "Connect";
             this.btn_connect.UseVisualStyleBackColor = true;
@@ -148,9 +111,9 @@ namespace cs408_client
             // 
             // btn_disconnect
             // 
-            this.btn_disconnect.Location = new System.Drawing.Point(590, 319);
+            this.btn_disconnect.Location = new System.Drawing.Point(367, 436);
             this.btn_disconnect.Name = "btn_disconnect";
-            this.btn_disconnect.Size = new System.Drawing.Size(198, 70);
+            this.btn_disconnect.Size = new System.Drawing.Size(119, 50);
             this.btn_disconnect.TabIndex = 14;
             this.btn_disconnect.Text = "Disconnect";
             this.btn_disconnect.UseVisualStyleBackColor = true;
@@ -158,9 +121,9 @@ namespace cs408_client
             // 
             // btn_sendmessage
             // 
-            this.btn_sendmessage.Location = new System.Drawing.Point(319, 319);
+            this.btn_sendmessage.Location = new System.Drawing.Point(184, 436);
             this.btn_sendmessage.Name = "btn_sendmessage";
-            this.btn_sendmessage.Size = new System.Drawing.Size(182, 70);
+            this.btn_sendmessage.Size = new System.Drawing.Size(119, 50);
             this.btn_sendmessage.TabIndex = 15;
             this.btn_sendmessage.Text = "Send Message";
             this.btn_sendmessage.UseVisualStyleBackColor = true;
@@ -170,20 +133,16 @@ namespace cs408_client
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(800, 450);
+            this.ClientSize = new System.Drawing.Size(521, 523);
             this.Controls.Add(this.btn_sendmessage);
             this.Controls.Add(this.btn_disconnect);
             this.Controls.Add(this.btn_connect);
-            this.Controls.Add(this.box_answer);
-            this.Controls.Add(this.label5);
-            this.Controls.Add(this.box_question);
+            this.Controls.Add(this.box_send);
             this.Controls.Add(this.label3);
             this.Controls.Add(this.label4);
             this.Controls.Add(this.box_port);
             this.Controls.Add(this.label2);
-            this.Controls.Add(this.label1);
             this.Controls.Add(this.box_ip);
-            this.Controls.Add(this.box_nick);
             this.Controls.Add(this.box_report);
             this.Name = "Form1";
             this.Text = "Form1";
@@ -195,16 +154,12 @@ namespace cs408_client
         #endregion
 
         private System.Windows.Forms.RichTextBox box_report;
-        private System.Windows.Forms.TextBox box_nick;
         private System.Windows.Forms.TextBox box_ip;
-        private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.TextBox box_port;
         private System.Windows.Forms.Label label3;
-        private System.Windows.Forms.RichTextBox box_question;
-        private System.Windows.Forms.RichTextBox box_answer;
-        private System.Windows.Forms.Label label5;
+        private System.Windows.Forms.RichTextBox box_send;
         private System.Windows.Forms.Button btn_connect;
         private System.Windows.Forms.Button btn_disconnect;
         private System.Windows.Forms.Button btn_sendmessage;

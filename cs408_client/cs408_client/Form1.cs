@@ -41,11 +41,11 @@ namespace cs408_client
                 PORT = Int32.Parse(box_port.Text);
 
                 client.Connect(IP, PORT);
-                SendNick(box_nick.Text);
+                SendString(box_send.Text);
 
                 box_report.AppendText("Connected to server.");
 
-                thrReceive = new Thread(new ThreadStart(Receive));
+                thrReceive = new Thread(Receive);
                 thrReceive.Start();
 
                 box_report.AppendText("Please ask your question.");
@@ -140,15 +140,9 @@ namespace cs408_client
             client.Send(buffer, 0, buffer.Length, SocketFlags.None);
         }
 
-        private void SendNick(string text)
-        {
-            byte[] buffer = Encoding.Default.GetBytes(text);
-            client.Send(buffer);
-        }
-
         private void btn_sendmessage_Click(object sender, EventArgs e)
         {
-            byte[] buffer = Encoding.Default.GetBytes("abc");
+            byte[] buffer = Encoding.Default.GetBytes(box_send.Text);
             client.Send(buffer);
         }
     }
