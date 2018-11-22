@@ -164,6 +164,7 @@ namespace cs408_client
             this.btn_sendmessage.TabIndex = 15;
             this.btn_sendmessage.Text = "Send Message";
             this.btn_sendmessage.UseVisualStyleBackColor = true;
+            this.btn_sendmessage.Click += new System.EventHandler(this.btn_sendmessage_Click);
             // 
             // Form1
             // 

@@ -15,22 +15,17 @@ namespace cs408_server
         bool accept = true;
         Socket server;
         List<Socket> socketList = new List<Socket>();
-        int serverPort = 0;
+
+        int serverPort;
         Thread thrAccept;
 
         List<string> userNameList = new List<string>();
-
-
-        static Socket serverSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-        static List<Socket> clientSockets = new List<Socket>();
-
-        private const int BUFFER_SIZE = 2048;
-
-        private static readonly byte[] buffer = new byte[BUFFER_SIZE];
-
+       
         public Form1()
         {
             InitializeComponent();
+            Load += Form1_Load;
+
         }
 
         private void Form1_Load(object sender, EventArgs e)
@@ -54,14 +49,16 @@ namespace cs408_server
 
         private void btn_start_Click(object sender, EventArgs e)
         {
+
+            //richTextBox1.AppendText("Started listening for incoming connections.");
             serverPort = Int32.Parse(box_port.Text);
             server = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             try
             {
                 server.Bind(new IPEndPoint(IPAddress.Any, serverPort));
-                box_report.Text = "Started listening for incoming connections.";
+                richTextBox1.AppendText("\nStarted listening for incoming connections.");
                 server.Listen(3); //the parameter here is maximum length of the pending connections queue
-                thrAccept = new Thread(new ThreadStart(Accept));
+                thrAccept = new Thread(Accept);
                 thrAccept.Start();
                 btn_start.Enabled = false;
                 btn_close.Enabled = true;
@@ -74,11 +71,33 @@ namespace cs408_server
             }
             catch
             {
-                box_report.Text = "Cannot create a server with the specified port number\n Check the port number and try again.";
-                box_report.Text = "terminating...";
+                richTextBox1.AppendText("\nCannot create a server with the specified port number\n Check the port number and try again.");
+                richTextBox1.AppendText("\nterminating...");
             }
 
         }
+
+        private void infiniteServerInput()
+        {
+            if (terminating)
+            {
+                richTextBox1.AppendText("\nServer has been closed.");
+                server.Close();
+            }
+        }
+
+        void BroadCastMessage(string message)
+        {
+            byte[] buffer = Encoding.Default.GetBytes(message);
+
+            //broadcast the message to all clients
+            foreach (Socket s in socketList)
+            {
+                s.Send(buffer);
+            }
+        }
+
+
 
         private void Accept()
         {
@@ -87,6 +106,7 @@ namespace cs408_server
                 try
                 {
                     socketList.Add(server.Accept());
+                    richTextBox1.AppendText("\nNew Client connected.\n");
                     Thread thrReceive;
                     thrReceive = new Thread(new ThreadStart(Receive));
                     thrReceive.Start();
@@ -96,19 +116,9 @@ namespace cs408_server
                     if (terminating)
                         accept = false;
                     else
-                        box_report.Text = "Listening socket has stopped working...\n";
+                        richTextBox1.AppendText("\nListening socket has stopped working...\n");
                 }
             }
-        }
-
-        private void btn_close_Click(object sender, EventArgs e)
-        {
-            server.Close();
-            thrAccept.Abort();
-            box_report.Text = "Server has been closed...";
-            btn_close.Enabled = false;
-            btn_start.Enabled = true;
-            terminating = true;
         }
 
         private void Receive()
@@ -131,10 +141,10 @@ namespace cs408_server
                 if (s == userName)
                 {
                     connected = false;
-                    box_report.Text = "User: " + userName + " is already connected.";
-                    buffer = Encoding.Default.GetBytes("sie");
+                    richTextBox1.AppendText("\nUser: " + userName + " is already connected.");
+                    buffer = Encoding.Default.GetBytes("dublicateNick");
                     n.Send(buffer);
-                    Thread.Sleep(500);
+                    //Thread.Sleep(500);
                     n.Close();
                 }
             }
@@ -143,7 +153,7 @@ namespace cs408_server
             {
                 try
                 {
-                    box_report.Text = "User name: " + userName + " connected.";
+                    richTextBox1.AppendText("\nUser name: " + userName + " connected.");
                     userNameList.Add(userName);
 
                     buffer = new byte[64];
@@ -154,43 +164,12 @@ namespace cs408_server
                         throw new SocketException();
                     }
 
-                    string s = Encoding.Default.GetString(buffer);
-                    s = s.Substring(0, s.IndexOf("\0"));
-                    int fileSize = Int32.Parse(s);
-
-
-                    buffer = new byte[128];
-                    rec = n.Receive(buffer);
-
-                    if (rec <= 0)
-                    {
-                        throw new SocketException();
-                    }
-
-                    s = Encoding.Default.GetString(buffer);
-                    s = s.Substring(0, s.IndexOf("\0"));
-
-                    string fileName = s;
-
-                    buffer = new byte[fileSize + 1];
-                    rec = n.Receive(buffer);
-
-                    if (rec <= 0)
-                    {
-                        throw new SocketException();
-                    }
-
-                    s = Encoding.Default.GetString(buffer);
-                    s = s.Substring(0, s.IndexOf("\0"));
-
-                    //                    string fileContent = s;
-
                 }
                 catch
                 {
                     if (!terminating)
                     {
-                        box_report.Text = "User: " + userName + " has disconnected...\n";
+                        richTextBox1.AppendText("\nUser: " + userName + " has disconnected...\n");
                         for (int i = 0; i < userNameList.Count; i++)
                         {
                             if (userNameList[i] == userName)
@@ -202,17 +181,21 @@ namespace cs408_server
                     connected = false;
                 }
             }
-
         }
 
-
-        private void infiniteServerInput()
+        private void btn_close_Click(object sender, EventArgs e)
         {
-            if (terminating)
-            {
-                box_report.Text = "Server has been closed.";
-                server.Close();
-            }
+            server.Close();
+            thrAccept.Abort();
+            richTextBox1.AppendText("\nServer has been closed...");
+            btn_close.Enabled = false;
+            btn_start.Enabled = true;
+            terminating = true;
+        }
+
+        private void richTextBox1_TextChanged(object sender, EventArgs e)
+        {
+
         }
     }
 }

@@ -28,7 +28,6 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.box_report = new System.Windows.Forms.RichTextBox();
             this.box_ip = new System.Windows.Forms.TextBox();
             this.label2 = new System.Windows.Forms.Label();
             this.label4 = new System.Windows.Forms.Label();
@@ -39,15 +38,8 @@
             this.label5 = new System.Windows.Forms.Label();
             this.btn_start = new System.Windows.Forms.Button();
             this.btn_close = new System.Windows.Forms.Button();
+            this.richTextBox1 = new System.Windows.Forms.RichTextBox();
             this.SuspendLayout();
-            // 
-            // box_report
-            // 
-            this.box_report.Location = new System.Drawing.Point(391, 12);
-            this.box_report.Name = "box_report";
-            this.box_report.Size = new System.Drawing.Size(397, 258);
-            this.box_report.TabIndex = 0;
-            this.box_report.Text = "Event log";
             // 
             // box_ip
             // 
@@ -59,7 +51,7 @@
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(36, 22);
+            this.label2.Location = new System.Drawing.Point(34, 22);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(17, 13);
             this.label2.TabIndex = 4;
@@ -119,7 +111,7 @@
             // 
             this.btn_start.Location = new System.Drawing.Point(95, 319);
             this.btn_start.Name = "btn_start";
-            this.btn_start.Size = new System.Drawing.Size(198, 70);
+            this.btn_start.Size = new System.Drawing.Size(176, 37);
             this.btn_start.TabIndex = 13;
             this.btn_start.Text = "Start Server";
             this.btn_start.UseVisualStyleBackColor = true;
@@ -129,17 +121,26 @@
             // 
             this.btn_close.Location = new System.Drawing.Point(522, 319);
             this.btn_close.Name = "btn_close";
-            this.btn_close.Size = new System.Drawing.Size(198, 70);
+            this.btn_close.Size = new System.Drawing.Size(178, 37);
             this.btn_close.TabIndex = 14;
             this.btn_close.Text = "Disconnect";
             this.btn_close.UseVisualStyleBackColor = true;
             this.btn_close.Click += new System.EventHandler(this.btn_close_Click);
             // 
+            // richTextBox1
+            // 
+            this.richTextBox1.Location = new System.Drawing.Point(474, 22);
+            this.richTextBox1.Name = "richTextBox1";
+            this.richTextBox1.Size = new System.Drawing.Size(226, 248);
+            this.richTextBox1.TabIndex = 15;
+            this.richTextBox1.Text = "";
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(800, 450);
+            this.ClientSize = new System.Drawing.Size(719, 374);
+            this.Controls.Add(this.richTextBox1);
             this.Controls.Add(this.btn_close);
             this.Controls.Add(this.btn_start);
             this.Controls.Add(this.box_answer);
@@ -150,7 +151,6 @@
             this.Controls.Add(this.box_port);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.box_ip);
-            this.Controls.Add(this.box_report);
             this.Name = "Form1";
             this.Text = "Form1";
             this.ResumeLayout(false);
@@ -159,8 +159,6 @@
         }
 
         #endregion
-
-        private System.Windows.Forms.RichTextBox box_report;
         private System.Windows.Forms.TextBox box_ip;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Label label4;
@@ -171,6 +169,7 @@
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.Button btn_start;
         private System.Windows.Forms.Button btn_close;
+        private System.Windows.Forms.RichTextBox richTextBox1;
     }
 }
 
