@@ -48,7 +48,7 @@ namespace cs408_client
                 thrReceive = new Thread(Receive);
                 thrReceive.Start();
 
-                box_report.AppendText("Please ask your question.");
+                //box_report.AppendText("Please ask your question.");
 
                 btn_sendmessage.Enabled = true;
                 btn_disconnect.Enabled = true;
@@ -90,6 +90,10 @@ namespace cs408_client
                         btn_connect.Enabled = true;
                         btn_disconnect.Enabled = false;
                         btn_sendmessage.Enabled = false;
+                    }
+                    else if (newmessage == "ask a question")
+                    {
+                        box_report.AppendText("\n" + newmessage + " and give the answer as second input.");
                     }
                 }
                 catch

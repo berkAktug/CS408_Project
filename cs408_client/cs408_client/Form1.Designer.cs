@@ -46,6 +46,7 @@ namespace cs408_client
             // 
             this.box_report.Location = new System.Drawing.Point(17, 172);
             this.box_report.Name = "box_report";
+            this.box_report.ReadOnly = true;
             this.box_report.Size = new System.Drawing.Size(469, 258);
             this.box_report.TabIndex = 0;
             this.box_report.Text = "event log";

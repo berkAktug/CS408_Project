@@ -16,11 +16,13 @@ namespace cs408_server
         Socket server;
         List<Socket> socketList = new List<Socket>();
 
+        int counter = 0;
+        bool connected1 = false, connected2 = false;
         int serverPort;
         Thread thrAccept;
 
         List<string> userNameList = new List<string>();
-       
+
         public Form1()
         {
             InitializeComponent();
@@ -33,6 +35,20 @@ namespace cs408_server
             box_ip.ReadOnly = true;
             btn_close.Enabled = false;
         }
+
+        //public void LoopClients()
+        //{
+        //    while (_isRunning)
+        //    {
+        //        // wait for client connection
+        //        TcpClient newClient = _server.AcceptTcpClient();
+
+        //        // client found.
+        //        // create a thread to handle communication
+        //        Thread t = new Thread(new ParameterizedThreadStart(HandleClient));
+        //        t.Start(newClient);
+        //    }
+        //}
 
         private string GetMyIP()
         {
@@ -55,13 +71,13 @@ namespace cs408_server
                 server.Bind(new IPEndPoint(IPAddress.Any, serverPort));
                 richTextBox1.AppendText("\nStarted listening for incoming connections.");
                 server.Listen(3); //the parameter here is maximum length of the pending connections queue
-                thrAccept = new Thread(new ThreadStart (Accept));
+                thrAccept = new Thread(new ThreadStart(Accept));
                 thrAccept.Start();
                 btn_start.Enabled = false;
                 btn_close.Enabled = true;
                 terminating = false;
-                //                thrServer = new Thread(new ThreadStart(infiniteServerInput));
-                //                thrServer.Start();
+                //    thrServer = new Thread(new ThreadStart(infiniteServerInput));
+                //    thrServer.Start();
             }
             catch
             {
@@ -91,8 +107,6 @@ namespace cs408_server
             }
         }
 
-
-
         private void Accept()
         {
             while (accept)
@@ -102,7 +116,7 @@ namespace cs408_server
                     socketList.Add(server.Accept());
                     richTextBox1.AppendText("\nNew Client connected.\n");
                     Thread thrReceive;
-                    thrReceive = new Thread(new ThreadStart(Receive));
+                    thrReceive = new Thread(Receive);
                     thrReceive.Start();
                 }
                 catch
@@ -138,7 +152,7 @@ namespace cs408_server
                     richTextBox1.AppendText("\nUser: " + userName + " is already connected.");
                     buffer = Encoding.Default.GetBytes("dublicateNick");
                     n.Send(buffer);
-                    //Thread.Sleep(500);
+                    Thread.Sleep(500);
                     n.Close();
                 }
             }
@@ -147,7 +161,11 @@ namespace cs408_server
             {
                 try
                 {
+                    //if(socketList[0].Connected && !connected1)
+                    //{
                     richTextBox1.AppendText("\nUser name: " + userName + " connected.");
+                    connected1 = true;
+                    //}
                     userNameList.Add(userName);
 
                     buffer = new byte[64];
@@ -157,7 +175,15 @@ namespace cs408_server
                     {
                         throw new SocketException();
                     }
-
+                    if (userNameList.Count == 2)
+                    {
+                        if (counter %6 == 0)
+                        {
+                            richTextBox1.AppendText("\nSent \"ask a question\" to user: " + userNameList[0]);
+                            socketList[0].Send(Encoding.Default.GetBytes("ask a question"));
+                            counter++;
+                        }
+                    }
                 }
                 catch
                 {
