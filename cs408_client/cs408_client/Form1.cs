@@ -28,6 +28,8 @@ namespace cs408_client
 
             TextBox.CheckForIllegalCrossThreadCalls = false;
 
+            box_report.AppendText("\nPlease Send your username to the server.");
+            
             btn_disconnect.Enabled = false;
             btn_sendmessage.Enabled = false;
         }
@@ -41,9 +43,10 @@ namespace cs408_client
                 PORT = Int32.Parse(box_port.Text);
 
                 client.Connect(IP, PORT);
-                SendString(box_send.Text);
+                SendString("N" + box_send.Text);
 
                 box_report.AppendText("\nConnected to server.");
+
 
                 thrReceive = new Thread(Receive);
                 thrReceive.Start();
@@ -78,10 +81,10 @@ namespace cs408_client
                         throw new SocketException();
                     }
 
-                    string newmessage = Encoding.Default.GetString(buffer);
-                    newmessage = newmessage.Substring(0, newmessage.IndexOf("\0"));
+                    string server_response = Encoding.Default.GetString(buffer);
+                    server_response = server_response.Substring(0, server_response.IndexOf("\0"));
 
-                    if (newmessage == "dublicateNick")
+                    if (server_response == "dublicateNick")
                     {
                         box_report.AppendText("\nUsername is already exist.");
 
@@ -91,16 +94,16 @@ namespace cs408_client
                         btn_disconnect.Enabled = false;
                         btn_sendmessage.Enabled = false;
                     }
-                    else if (newmessage == "ask a question")
+                    else if (server_response == "ask a question")
                     {
-                        box_report.AppendText("\n" + newmessage + " and give the answer as second input.");
-                        SendString("question and answer");
+                        box_report.AppendText("\n" + server_response + " and give the answer as second input.");
+                        SendString("Q");
                     }
-                    else if (newmessage == "answer the question")
-                    {
-                        box_report.AppendText("\nPlease answer the following question:\n" + newmessage);
-                        SendString("Answer");
-                    }
+                    //else if (server_response == "answer the question")
+                    //{
+                    //    box_report.AppendText("\nPlease answer the following question:\n" + server_response);
+                    //    SendString("Answer");
+                    //}
                 }
                 catch
                 {
@@ -151,7 +154,7 @@ namespace cs408_client
 
         private void btn_sendmessage_Click(object sender, EventArgs e)
         {
-            byte[] buffer = Encoding.Default.GetBytes(box_send.Text);
+            byte[] buffer = Encoding.ASCII.GetBytes(box_send.Text);
             client.Send(buffer);
         }
     }
