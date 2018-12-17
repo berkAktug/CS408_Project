@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading;
 using System.Windows.Forms;
 
-namespace cs408_async_client
+namespace cs408_client
 {
     public partial class Form1 : Form
     {
