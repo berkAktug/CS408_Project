@@ -5,12 +5,15 @@ using System.Text;
 using System.Threading;
 using System.Windows.Forms;
 
-namespace cs408_client
+namespace cs408_async_client
 {
     public partial class Form1 : Form
     {
         bool terminating = false;
         Socket client;
+
+        static bool isAnswer = false;
+        static bool isQuestion = false;
 
         string IP;
         int PORT;
@@ -29,9 +32,9 @@ namespace cs408_client
             TextBox.CheckForIllegalCrossThreadCalls = false;
 
             box_report.AppendText("\nPlease Send your username to the server.");
-            
+
             btn_disconnect.Enabled = false;
-            btn_sendmessage.Enabled = false;
+            btn_send.Enabled = false;
         }
 
         private void btn_connect_Click(object sender, EventArgs e)
@@ -43,17 +46,17 @@ namespace cs408_client
                 PORT = Int32.Parse(box_port.Text);
 
                 client.Connect(IP, PORT);
-                SendString("N" + box_send.Text);
+                SendString("N" + box_nick.Text);
 
                 box_report.AppendText("\nConnected to server.");
-
+                box_nick.Enabled = false;
 
                 thrReceive = new Thread(Receive);
                 thrReceive.Start();
 
                 //box_report.AppendText("Please ask your question.");
 
-                btn_sendmessage.Enabled = true;
+                btn_send.Enabled = true;
                 btn_disconnect.Enabled = true;
                 btn_connect.Enabled = false;
             }
@@ -62,6 +65,7 @@ namespace cs408_client
                 box_report.AppendText("\nCannot connected to the specified server.");
                 box_report.AppendText("\nterminating...");
             }
+
         }
 
         private void Receive()
@@ -84,7 +88,7 @@ namespace cs408_client
                     string server_response = Encoding.Default.GetString(buffer);
                     server_response = server_response.Substring(0, server_response.IndexOf("\0"));
 
-                    if (server_response == "dublicateNick")
+                    if (server_response == "dublicateNick") // error case
                     {
                         box_report.AppendText("\nUsername is already exist.");
 
@@ -92,18 +96,30 @@ namespace cs408_client
 
                         btn_connect.Enabled = true;
                         btn_disconnect.Enabled = false;
-                        btn_sendmessage.Enabled = false;
+
+                        btn_send.Enabled = false;
+                        box_nick.Enabled = true;
                     }
-                    else if (server_response == "ask a question")
+                    else if (server_response == "ask") // state 1
                     {
-                        box_report.AppendText("\n" + server_response + " and give the answer as second input.");
-                        SendString("Q");
+                        box_report.AppendText("\nYour turn to ask a question and give the answer.");
+
+                        box_question.Enabled = true;
+                        box_answer.Enabled = true;
+
+                        isAnswer = false;
+                        isQuestion = true;
                     }
-                    //else if (server_response == "answer the question")
-                    //{
-                    //    box_report.AppendText("\nPlease answer the following question:\n" + server_response);
-                    //    SendString("Answer");
-                    //}
+                    else if (server_response[0] == 'A') // state 3
+                    {
+                        box_report.AppendText("\nPlease answer the fallowing question:\n" + server_response.Substring(1));
+
+                        box_question.Enabled = false;
+                        box_answer.Enabled = true;
+
+                        isQuestion = false;
+                        isAnswer = true;
+                    }
                 }
                 catch
                 {
@@ -115,7 +131,7 @@ namespace cs408_client
 
                         btn_connect.Enabled = true;
                         btn_disconnect.Enabled = false;
-                        btn_sendmessage.Enabled = false;
+                        btn_send.Enabled = false;
                     }
                     connected = false;
                 }
@@ -126,11 +142,12 @@ namespace cs408_client
         {
             terminating = true;
             box_report.AppendText("\nGoodbye.");
+            // add functionality for server to notice when user disconnects.
             client.Close();
 
             btn_disconnect.Enabled = false;
             btn_connect.Enabled = true;
-            btn_sendmessage.Enabled = false;
+            btn_send.Enabled = false;
         }
 
         private void ReceiveResponse()
@@ -152,10 +169,40 @@ namespace cs408_client
             client.Send(buffer, 0, buffer.Length, SocketFlags.None);
         }
 
-        private void btn_sendmessage_Click(object sender, EventArgs e)
+        private void btn_send_Click(object sender, EventArgs e)
         {
-            byte[] buffer = Encoding.ASCII.GetBytes(box_send.Text);
+            box_report.AppendText("\nSendclick been clicked.");
+            if (isQuestion)
+            {
+                box_report.AppendText("\nInside isQuestion.");
+                //byte[] buffer = Encoding.ASCII.GetBytes(box_question.Text + "~" + box_answer.Text);
+                //client.Send(buffer);]
+                string tmp = box_question.Text.Normalize() + "?" + box_answer.Text.Normalize();
+                box_report.AppendText("\n" + tmp);
+                SendString(tmp);
+
+            }
+            else if (isAnswer)
+            {
+                box_report.AppendText("\nInside isAnswer.");
+                byte[] buffer = Encoding.ASCII.GetBytes("P" + box_answer.Text);
+                client.Send(buffer);
+            }
+            else
+            {
+                box_report.AppendText("\nInside else??!?!?");
+            }
+        }
+
+        private void btn_ready_Click(object sender, EventArgs e)
+        {
+            byte[] buffer = Encoding.ASCII.GetBytes("ready" + box_nick.Text);
             client.Send(buffer);
+            btn_send.Enabled = true;
+            btn_connect.Enabled = true;
         }
     }
 }
+
+
+
