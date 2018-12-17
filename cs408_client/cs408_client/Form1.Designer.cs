@@ -1,4 +1,4 @@
-﻿namespace cs408_async_client
+﻿namespace cs408_client
 {
     partial class Form1
     {
