@@ -141,17 +141,18 @@ namespace cs408_server
                 {
                     throw new SocketException();
                 }
-                string text = Encoding.Default.GetString(buffer);
-                RTB_Writer("\n" + text);
+                string type = Encoding.Default.GetString(buffer);
+                RTB_Writer("\n" + type);
 
-                if (text[0] == 'N')
+                if (type == "$nick")
                 {
-                    userName = text.Substring(1, text.IndexOf("\0"));
+
+                    userName = type.Substring(1, type.IndexOf("\0"));
                     is_question = false;
                     is_probe = false;
                 }
                 //else if (text[0] == 'R')
-                else if (text == "$ready")
+                else if (type == "$ready")
                 {
                     // user is ready.
                     //richTextBox1.AppendText("\nUser " + text.Substring(1, text.IndexOf("\0")) + " is ready to start");
@@ -160,7 +161,7 @@ namespace cs408_server
 
                     ready_count++;
                 }
-                else if (text == "$question") // if client sends Q & A
+                else if (type == "$question") // if client sends Q & A
                 {
                     buffer = new byte[1024];
                     rec = n.Receive(buffer);
@@ -169,16 +170,16 @@ namespace cs408_server
                         throw new SocketException();
                     }
 
-                    text = Encoding.Default.GetString(buffer);
+                    type = Encoding.Default.GetString(buffer);
 
-                    question = text.Substring(0, text.IndexOf("~"));
-                    realanswer = text.Substring(text.IndexOf("~"), text.IndexOf("\0"));
+                    question = type.Substring(0, type.IndexOf("~"));
+                    realanswer = type.Substring(type.IndexOf("~"), type.IndexOf("\0"));
                     is_question = true;
                     is_probe = false;
                     RTB_Writer("\nUser " + userName + " has asked the following question: " + question);
                     RTB_Writer("\nAnd declared the correct answer as: " + realanswer);
                 }
-                else if (text == "$answer")
+                else if (type == "$answer")
                 {
                     buffer = new byte[1024];
                     rec = n.Receive(buffer);
@@ -187,9 +188,9 @@ namespace cs408_server
                         throw new SocketException();
                     }
 
-                    text = Encoding.Default.GetString(buffer);
+                    type = Encoding.Default.GetString(buffer);
 
-                    probe = text.Substring(0, text.IndexOf("\0"));
+                    probe = type.Substring(0, type.IndexOf("\0"));
                     RTB_Writer("\nProgram has hit breakpoint \"Else\"");
                     is_probe = true;
                     is_question = false;
@@ -225,11 +226,11 @@ namespace cs408_server
                     {
                         throw new SocketException();
                     }
-                    string type = Encoding.Default.GetString(buffer);
+                    string text = Encoding.Default.GetString(buffer);
 
                     RTB_Writer("\n" + text);
                     //if (userNameList.Count == ready_count) // because array starts from 0 therefore when 2 clients connected the number is 1 instead of 2
-                    if (type == "$ready")
+                    if (text == "$ready")
                     {
                         ready_count++;
                         RTB_Writer("\nIT IS ALIVEEEE!!!");

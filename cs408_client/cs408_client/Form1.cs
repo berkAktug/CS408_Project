@@ -49,7 +49,8 @@ namespace cs408_client
                 thrReceive = new Thread(Receive);
                 thrReceive.Start();
 
-                SendString("N" + box_nick.Text);
+                SendString("$nick");
+                SendString(box_nick.Text);
 
                 box_report.AppendText("\nConnected to server.");
                 box_nick.Enabled = false;
