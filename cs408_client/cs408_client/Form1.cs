@@ -5,12 +5,12 @@ using System.Text;
 using System.Threading;
 using System.Windows.Forms;
 
-namespace cs408_async_client
+namespace cs408_client
 {
     public partial class Form1 : Form
     {
         bool terminating = false;
-        Socket client;
+        static Socket client;
 
         static bool isAnswer = false;
         static bool isQuestion = false;
@@ -46,15 +46,13 @@ namespace cs408_async_client
                 PORT = Int32.Parse(box_port.Text);
 
                 client.Connect(IP, PORT);
+                thrReceive = new Thread(Receive);
+                thrReceive.Start();
+
                 SendString("N" + box_nick.Text);
 
                 box_report.AppendText("\nConnected to server.");
                 box_nick.Enabled = false;
-
-                thrReceive = new Thread(Receive);
-                thrReceive.Start();
-
-                //box_report.AppendText("Please ask your question.");
 
                 btn_send.Enabled = true;
                 btn_disconnect.Enabled = true;
@@ -166,7 +164,7 @@ namespace cs408_async_client
         void SendString(string text)
         {
             byte[] buffer = Encoding.ASCII.GetBytes(text);
-            client.Send(buffer, 0, buffer.Length, SocketFlags.None);
+            client.Send(buffer);
         }
 
         private void btn_send_Click(object sender, EventArgs e)
@@ -174,19 +172,28 @@ namespace cs408_async_client
             box_report.AppendText("\nSendclick been clicked.");
             if (isQuestion)
             {
-                box_report.AppendText("\nInside isQuestion.");
-                //byte[] buffer = Encoding.ASCII.GetBytes(box_question.Text + "~" + box_answer.Text);
-                //client.Send(buffer);]
-                string tmp = box_question.Text.Normalize() + "?" + box_answer.Text.Normalize();
-                box_report.AppendText("\n" + tmp);
-                SendString(tmp);
-
+                if (!box_question.Text.Contains("?"))
+                {
+                    box_report.AppendText("\nPlease add \"?\" to end of your question. Otherwise the system will not accept your input.");
+                }
+                else
+                {
+                    box_report.AppendText("\nInside isQuestion.");
+                    SendString("$question");
+                    //byte[] buffer = Encoding.ASCII.GetBytes(box_question.Text + "~" + box_answer.Text);
+                    //client.Send(buffer);]
+                    string tmp = box_question.Text.Normalize() /*+ "?"*/ + box_answer.Text.Normalize();
+                    box_report.AppendText("\n" + tmp);
+                    SendString(tmp);
+                }
             }
             else if (isAnswer)
             {
+                SendString("$answer");
                 box_report.AppendText("\nInside isAnswer.");
-                byte[] buffer = Encoding.ASCII.GetBytes("P" + box_answer.Text);
-                client.Send(buffer);
+                SendString(box_answer.Text);
+                //byte[] buffer = Encoding.ASCII.GetBytes(box_answer.Text);
+                //client.Send(buffer);
             }
             else
             {
@@ -196,8 +203,9 @@ namespace cs408_async_client
 
         private void btn_ready_Click(object sender, EventArgs e)
         {
-            byte[] buffer = Encoding.ASCII.GetBytes("ready" + box_nick.Text);
-            client.Send(buffer);
+            //byte[] buffer = Encoding.ASCII.GetBytes("R" + box_nick.Text);
+            //client.Send(buffer);
+            SendString("$ready");
             btn_send.Enabled = true;
             btn_connect.Enabled = true;
         }

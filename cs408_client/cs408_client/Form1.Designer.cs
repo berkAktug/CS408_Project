@@ -1,4 +1,4 @@
-﻿namespace cs408_async_client
+﻿namespace cs408_client
 {
     partial class Form1
     {
@@ -43,6 +43,7 @@
             this.box_answer = new System.Windows.Forms.TextBox();
             this.label4 = new System.Windows.Forms.Label();
             this.label5 = new System.Windows.Forms.Label();
+            this.label6 = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // btn_connect
@@ -87,6 +88,7 @@
             // 
             // box_report
             // 
+            this.box_report.Enabled = false;
             this.box_report.Location = new System.Drawing.Point(409, 12);
             this.box_report.Name = "box_report";
             this.box_report.Size = new System.Drawing.Size(379, 324);
@@ -173,11 +175,21 @@
             this.label5.TabIndex = 14;
             this.label5.Text = "Answer";
             // 
+            // label6
+            // 
+            this.label6.AutoSize = true;
+            this.label6.Location = new System.Drawing.Point(96, 190);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(193, 13);
+            this.label6.TabIndex = 15;
+            this.label6.Text = "Please add \"?\" to end of your question.";
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 450);
+            this.Controls.Add(this.label6);
             this.Controls.Add(this.label5);
             this.Controls.Add(this.label4);
             this.Controls.Add(this.box_answer);
@@ -217,6 +229,7 @@
         private System.Windows.Forms.TextBox box_answer;
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.Label label5;
+        private System.Windows.Forms.Label label6;
     }
 }
 
