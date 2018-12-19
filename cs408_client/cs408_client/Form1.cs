@@ -49,8 +49,8 @@ namespace cs408_client
                 thrReceive = new Thread(Receive);
                 thrReceive.Start();
 
-                SendString("$nick");
-                SendString(box_nick.Text);
+                //SendString("$nick");
+                SendString("$name" + box_nick.Text);
 
                 box_report.AppendText("\nConnected to server.");
                 box_nick.Enabled = false;
@@ -99,7 +99,7 @@ namespace cs408_client
                         btn_send.Enabled = false;
                         box_nick.Enabled = true;
                     }
-                    else if (server_response == "ask") // state 1
+                    else if (server_response == "#ask") // state 1
                     {
                         box_report.AppendText("\nYour turn to ask a question and give the answer.");
 
@@ -109,9 +109,16 @@ namespace cs408_client
                         isAnswer = false;
                         isQuestion = true;
                     }
-                    else if (server_response[0] == 'A') // state 3
+                    else if (server_response == "#answer") // state 3
                     {
-                        box_report.AppendText("\nPlease answer the fallowing question:\n" + server_response.Substring(1));
+                        Byte[] buff = new byte[1024];
+                        int r = client.Receive(buffer);
+                        if (r <= 0)
+                        {
+                            throw new SocketException();
+                        }
+                        string text = Encoding.Default.GetString(buffer);
+                        box_report.AppendText("\nPlease answer the fallowing question: " + text);
 
                         box_question.Enabled = false;
                         box_answer.Enabled = true;
@@ -141,6 +148,7 @@ namespace cs408_client
         {
             terminating = true;
             box_report.AppendText("\nGoodbye.");
+            SendString("$disconnect");
             // add functionality for server to notice when user disconnects.
             client.Close();
 
@@ -164,7 +172,8 @@ namespace cs408_client
         /// </summary>
         void SendString(string text)
         {
-            byte[] buffer = Encoding.ASCII.GetBytes(text);
+            byte[] buffer = new byte[1024];
+            buffer = Encoding.ASCII.GetBytes(text);
             client.Send(buffer);
         }
 
@@ -179,22 +188,18 @@ namespace cs408_client
                 }
                 else
                 {
-                    box_report.AppendText("\nInside isQuestion.");
                     SendString("$question");
-                    //byte[] buffer = Encoding.ASCII.GetBytes(box_question.Text + "~" + box_answer.Text);
-                    //client.Send(buffer);]
                     string tmp = box_question.Text.Normalize() /*+ "?"*/ + box_answer.Text.Normalize();
                     box_report.AppendText("\n" + tmp);
                     SendString(tmp);
+                    box_report.AppendText("\nQuestion and answer been sent.");
                 }
             }
             else if (isAnswer)
             {
                 SendString("$answer");
-                box_report.AppendText("\nInside isAnswer.");
                 SendString(box_answer.Text);
-                //byte[] buffer = Encoding.ASCII.GetBytes(box_answer.Text);
-                //client.Send(buffer);
+                box_report.AppendText("\nAnwer has been sent.");
             }
             else
             {
@@ -204,8 +209,6 @@ namespace cs408_client
 
         private void btn_ready_Click(object sender, EventArgs e)
         {
-            //byte[] buffer = Encoding.ASCII.GetBytes("R" + box_nick.Text);
-            //client.Send(buffer);
             SendString("$ready");
             btn_send.Enabled = true;
             btn_connect.Enabled = true;

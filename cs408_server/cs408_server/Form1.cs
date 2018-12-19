@@ -5,6 +5,7 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Windows.Forms;
+using System.Linq;
 
 namespace cs408_server
 {
@@ -12,10 +13,11 @@ namespace cs408_server
     {
         bool terminating = false;
         bool accept = true, is_question = false, is_probe = false;
-        Socket server;
-        List<Socket> socketList = new List<Socket>();
+        //List<Socket> socketList = new List<Socket>();
+        List<Client> client_list = new List<Client>();
+        Socket server = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
         private string userName = "", question = "", probe = "", realanswer = "";
-        int ready_count = -1;
+        int ready_count = 0;
 
 
         int i = 0;
@@ -53,11 +55,10 @@ namespace cs408_server
         private void btn_start_Click(object sender, EventArgs e)
         {
             serverPort = Int32.Parse(box_port.Text);
-            server = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             try
             {
                 server.Bind(new IPEndPoint(IPAddress.Any, serverPort));
-                richTextBox1.Text = "\nStarted listening for incoming connections.";
+                richTextBox1.Text = "Started listening for incoming connections.";
                 server.Listen(3); //the parameter here is maximum length of the pending connections queue
                 thrAccept = new Thread(new ThreadStart(Accept));
                 thrAccept.Start();
@@ -93,28 +94,55 @@ namespace cs408_server
             }
         }
 
-        void BroadCastMessage(string message)
-        {
-            byte[] buffer = Encoding.Default.GetBytes(message);
-
-            //broadcast the message to all clients
-            foreach (Socket s in socketList)
-            {
-                s.Send(buffer);
-            }
-        }
-
         private void Accept()
         {
             while (accept)
             {
                 try
                 {
-                    socketList.Add(server.Accept());
-                    RTB_Writer("\nNew Client connected.");
+                    Client c1 = new Client();
+                    c1.client_socket = server.Accept();
 
-                    thrReceive = new Thread(new ThreadStart(Receive));
-                    thrReceive.Start();
+                    Byte[] buffer = new byte[128];
+                    int rec = c1.client_socket.Receive(buffer);
+                    string command = Encoding.Default.GetString(buffer);
+
+                    if (command.Substring(0, 5) == "$name")
+                    {
+                        String name = command.Substring(5).Replace("\0", "");
+                        if (client_list.Any(x => x.name == name))
+                        {
+                            RTB_Writer("Connection error - DublicateNick");
+                            c1.client_socket.Send(Encoding.Default.GetBytes("dublicateNick"));
+                            c1.client_socket.Close();
+                        }
+                        else
+                        {
+                            name = name.Replace("\0", "");
+                            c1.name = name;
+                            c1.isAlive = true;
+                            c1.isReady = false;
+                            c1.score = 0;
+                            c1.guess = "";
+                            c1.GameId = 0;
+                            client_list.Add(c1);
+                            int index = client_list.Count() - 1;
+                            RTB_Writer("\n" + name + "connected. \n");
+                            Thread thrReceive = new Thread(() => Receive(index));
+                            thrReceive.Start();
+                        }
+                    }
+                    else
+                    {
+                        RTB_Writer("Connection error - invalid request\n");
+                        byte[] error = Encoding.Default.GetBytes("Invalid request!\n");
+                        c1.client_socket.Send(error);
+                        c1.client_socket.Close();
+                    }
+                    //socketList.Add(server.Accept());
+                    //RTB_Writer("\nNew Client connected.");
+                    //thrReceive = new Thread(new ThreadStart(Receive));
+                    //thrReceive.Start();
                 }
                 catch
                 {
@@ -125,158 +153,118 @@ namespace cs408_server
                     //richTextBox1.AppendText("\nListening socket has stopped working...\n");
                 }
             }
+            thrAccept.Abort();
         }
 
-        private void Receive()
+        private void Receive(int index)
         {
-
+            Client n = client_list[index];
             bool connected = true;
             while (connected)
             {
-                Socket n = socketList[socketList.Count - 1];
-                byte[] buffer = new byte[1024];
-                int rec = n.Receive(buffer);
-
-                if (rec <= 0)
-                {
-                    throw new SocketException();
-                }
-                string type = Encoding.Default.GetString(buffer);
-                RTB_Writer("\n" + type);
-
-                if (type == "$nick")
-                {
-
-                    userName = type.Substring(1, type.IndexOf("\0"));
-                    is_question = false;
-                    is_probe = false;
-                }
-                //else if (text[0] == 'R')
-                else if (type == "$ready")
-                {
-                    // user is ready.
-                    //richTextBox1.AppendText("\nUser " + text.Substring(1, text.IndexOf("\0")) + " is ready to start");
-                    //RTB_Writer("\nUser " + text.Substring(1) + " is ready to start");
-                    RTB_Writer("\nUser " + " is ready to start");
-
-                    ready_count++;
-                }
-                else if (type == "$question") // if client sends Q & A
-                {
-                    buffer = new byte[1024];
-                    rec = n.Receive(buffer);
-                    if (rec <= 0)
-                    {
-                        throw new SocketException();
-                    }
-
-                    type = Encoding.Default.GetString(buffer);
-
-                    question = type.Substring(0, type.IndexOf("~"));
-                    realanswer = type.Substring(type.IndexOf("~"), type.IndexOf("\0"));
-                    is_question = true;
-                    is_probe = false;
-                    RTB_Writer("\nUser " + userName + " has asked the following question: " + question);
-                    RTB_Writer("\nAnd declared the correct answer as: " + realanswer);
-                }
-                else if (type == "$answer")
-                {
-                    buffer = new byte[1024];
-                    rec = n.Receive(buffer);
-                    if (rec <= 0)
-                    {
-                        throw new SocketException();
-                    }
-
-                    type = Encoding.Default.GetString(buffer);
-
-                    probe = type.Substring(0, type.IndexOf("\0"));
-                    RTB_Writer("\nProgram has hit breakpoint \"Else\"");
-                    is_probe = true;
-                    is_question = false;
-                }
-
-                userNameList.Sort();
-                //if (i != 0)
-                for (int k = 0; k < userNameList.Capacity; k++)
-                {
-                    if ((userNameList[k] == userName) && i != k)
-                    {
-                        userNameList[k] = "";
-                        //connected = false;
-                        RTB_Writer("\nUser: " + userName + " is already connected. Therefore the connection request been declined.");
-                        n.Send(Encoding.Default.GetBytes("dublicateNick"));
-                        n.Close();
-                        return;
-                    }
-                }
-                RTB_Writer("\nUser name: " + userName + " connected.");
-                RTB_Writer("\nUser count:" + userNameList.Count);
-
-                //while (connected)
-                //{
                 try
                 {
-
-                    byte[] buffertemp = new byte[64];
-                    //string type = Encoding.Default.GetString(buffertemp);
-                    rec = n.Receive(buffer);
-
+                    Byte[] buffer = new byte[1024];
+                    int rec = n.client_socket.Receive(buffer);
                     if (rec <= 0)
                     {
                         throw new SocketException();
                     }
-                    string text = Encoding.Default.GetString(buffer);
+                    string command = Encoding.Default.GetString(buffer).Replace("\0", "");
 
-                    RTB_Writer("\n" + text);
-                    //if (userNameList.Count == ready_count) // because array starts from 0 therefore when 2 clients connected the number is 1 instead of 2
-                    if (text == "$ready")
+                    if (command == "$ready")
                     {
-                        ready_count++;
-                        RTB_Writer("\nIT IS ALIVEEEE!!!");
+                        n.isReady = true;
+                        RTB_Writer("\n" + n.name + " is ready");
+                        bool allready = true;
+                        for (int i = 0; i < client_list.Count; i++)
+                        {
+                            if (client_list[i].isReady == false)
+                            {
+                                allready = false;
+                                break;
+                            }
+                        }
+                        if (allready)
+                        {
+                            //client_list.Sort();
+                            RTB_Writer("\n" + n.name + "'s turn to ask");
+                            client_list[counter].client_socket.Send(Encoding.Default.GetBytes("#ask"));
+                            counter++;
+                        }
                     }
-                    if (userNameList.Count >= 1) // because array starts from 0 therefore when 2 clients connected the number is 1 instead of 2
+                    else if (command == "$question")
                     {
-                        byte[] t_buf = Encoding.Default.GetBytes("ask");
-                        socketList[(socketList.Count + counter) % 2].Send(t_buf);
-                        counter++;
+                        RTB_Writer("\n" + n.name + "'s turn\n");
+                        Byte[] buff = new byte[1024];
+                        int r = n.client_socket.Receive(buffer);
+                        if (r <= 0)
+                        {
+                            throw new SocketException();
+                        }
+                        string text = Encoding.Default.GetString(buffer);
+                        question = text.Substring(0, text.IndexOf("?"));
+                        realanswer = text.Substring(text.IndexOf("?") + 1);
+
+                        RTB_Writer(n.name + " asked fallowing question: " + question + "\nAnd provided answer as: " + realanswer + "\n");
+                        for (int i = 0; i < client_list.Count; i++)
+                        {
+                            if (i != index)
+                            {
+                                client_list[i].client_socket.Send(Encoding.Default.GetBytes("#answer"));
+                                client_list[i].client_socket.Send(Encoding.Default.GetBytes(question));
+                            }
+                        }
                     }
-                    userNameList.Add(userName);
-
-                    buffer = new byte[64];
-                    rec = n.Receive(buffer);
-
-                    if (rec <= 0)
+                    else if (command == "$answer")
                     {
-                        throw new SocketException();
+                        Byte[] buff = new byte[1024];
+                        int r = n.client_socket.Receive(buffer);
+                        if (r <= 0)
+                        {
+                            throw new SocketException();
+                        }
+                        string text = Encoding.Default.GetString(buffer);
+                        n.guess = text.Substring(0, text.IndexOf("\0"));
+                        RTB_Writer("\n" + n.name + " guessed " + n.guess);
+                        bool allanswered = true;
+                        for (int i = 0; i < client_list.Count; i++)
+                        {
+                            if (i != index && client_list[i].guess != "")
+                            {
+                                allanswered = false;
+                            }
+                        }
+                        if (allanswered)
+                        {
+                            counter++;
+                            for (int i = 0; i < client_list.Count; i++)
+                            {
+                                if (i != index && client_list[i].guess.ToLower() == realanswer.ToLower())
+                                {
+                                    client_list[i].score++;
+                                    client_list[i].client_socket.Send(Encoding.Default.GetBytes("#win"));
+                                    RTB_Writer(client_list[i].name + " won \n");
+                                }
+                                else if (i != index && client_list[i].guess.ToLower() != realanswer.ToLower())
+                                {
+                                    client_list[i].client_socket.Send(Encoding.Default.GetBytes("#lose"));
+                                    RTB_Writer(client_list[i].name + " lost \n");
+                                }
+                            }
+                            client_list[counter].client_socket.Send(Encoding.Default.GetBytes("#ask"));
+                            counter++;
+                        }
                     }
-
-                    if (is_question)
+                    else if (command == "$diconnected")
                     {
-                        RTB_Writer("\nUser " + userName + " has asked the following question: " + question);
-                        RTB_Writer("\nAnd declared the correct answer as: " + realanswer);
-                        Socket other = socketList[socketList.Count - 1];
-                        other.Send(Encoding.Default.GetBytes(question));
+                       
                     }
                 }
                 catch
                 {
-                    if (!terminating)
-                    {
-                        RTB_Writer("\nUser: " + userName + " has disconnected...\n");
-                        for (int i = 0; i < userNameList.Count; i++)
-                        {
-                            if (userNameList[i] == userName)
-                            {
-                                userNameList.Remove(userName);
-                            }
-                        }
-                    }
-                    n.Close();
-                    socketList.Remove(n);
-                    connected = false;
+
                 }
-                //}
             }
         }
 
@@ -289,5 +277,24 @@ namespace cs408_server
             btn_start.Enabled = true;
             terminating = true;
         }
+    }
+}
+
+namespace cs408_server
+{
+    class Client
+    {
+
+        public Socket client_socket { get; set; }
+        public string name { get; set; }
+        public int GameId { get; set; }
+        public int round { get; set; }
+        public string guess { get; set; }
+        public int localScore = 0;
+        public int difference = -1;
+        public bool isAlive { get; set; }
+        public int score { get; set; }
+        //public int randomNum { get; set; }
+        public bool isReady { get; set; }
     }
 }
