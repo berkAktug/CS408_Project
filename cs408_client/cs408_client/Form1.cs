@@ -148,7 +148,7 @@ namespace cs408_client
         {
             terminating = true;
             box_report.AppendText("\nGoodbye.");
-            SendString("$disconnect");
+            //SendString("$disconnect");
             // add functionality for server to notice when user disconnects.
             client.Close();
 

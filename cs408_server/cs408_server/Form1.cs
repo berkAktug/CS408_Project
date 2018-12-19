@@ -205,6 +205,10 @@ namespace cs408_server
                         string text = Encoding.Default.GetString(buff);
                         question = text.Substring(0, text.IndexOf("?"));
                         realanswer = text.Substring(text.IndexOf("?") + 1, text.IndexOf("\0"));
+                        while (realanswer.Contains("\0"))
+                        {
+                            realanswer = realanswer.Replace("\0", "");
+                        }
 
                         RTB_Writer(n.name + " asked fallowing question: " + question + "\nAnd provided answer as: " + realanswer + "\n");
                         for (int i = 0; i < client_list.Count; i++)
@@ -226,10 +230,10 @@ namespace cs408_server
                         }
                         string text = Encoding.Default.GetString(buff);
                         n.guess = text.Substring(0, text.IndexOf("\0"));
-                        if (n.guess.Contains(n.name) && n.guess.IndexOf(n.name) == (n.guess.Length - (n.name.Length + 1)))
-                        {
-                            n.guess = n.guess.Substring(0, n.guess.IndexOf(n.name));
-                        }
+                        //if (n.guess.Contains(n.name) && n.guess.IndexOf(n.name) == (n.guess.Length - (n.name.Length + 1)))
+                        //{
+                        //    n.guess = n.guess.Substring(0, n.guess.IndexOf(n.name));
+                        //}
                         RTB_Writer("\n" + n.name + " guessed " + n.guess + "\n");
                         bool allanswered = true;
                         for (int i = 0; i < client_list.Count; i++)
@@ -242,23 +246,22 @@ namespace cs408_server
                         if (allanswered)
                         {
                             counter++;
-                            for (int i = 0; i < client_list.Count; i++)
+                            //for (int i = 0; i < client_list.Count; i++)
+                            //{
+                            if (client_list[index].guess.ToLower() == realanswer.ToLower())
                             {
-                                if (i != index && client_list[i].guess.ToLower() == realanswer.ToLower())
-                                {
-                                    client_list[i].score++;
-                                    client_list[i].client_socket.Send(Encoding.Default.GetBytes("#win"));
-                                    RTB_Writer(client_list[i].name + " won \n");
-                                }
-                                else if (i != index && client_list[i].guess.ToLower() != realanswer.ToLower())
-                                {
-                                    client_list[i].client_socket.Send(Encoding.Default.GetBytes("#lose"));
-                                    RTB_Writer(client_list[i].name + " lost \n");
-                                }
+                                client_list[index].score++;
+                                client_list[index].client_socket.Send(Encoding.Default.GetBytes("#win"));
+                                RTB_Writer(client_list[index].name + " won \n");
                             }
+                            else if (client_list[index].guess.ToLower() != realanswer.ToLower())
+                            {
+                                client_list[index].client_socket.Send(Encoding.Default.GetBytes("#lose"));
+                                RTB_Writer(client_list[index].name + " lost \n");
+                            }
+                            //}
                             client_list[counter % (client_list.Count)].client_socket.Send(Encoding.Default.GetBytes("#ask"));
                             RTB_Writer("\n" + client_list[counter % client_list.Count] + "'s turn to ask");
-                            counter++;
                         }
                     }
                     else if (command == "$diconnected")
@@ -268,8 +271,22 @@ namespace cs408_server
                 }
                 catch
                 {
-                    RTB_Writer("Error happened.");
+                    if (!terminating)
+                    {
+                        RTB_Writer("\nUser: " + userName + " has disconnected...\n");
+                        for (int i = 0; i < userNameList.Count; i++)
+                        {
+                            if (userNameList[i] == userName)
+                            {
+                                userNameList.Remove(userName);
+                            }
+                        }
+                    }
+                    n.client_socket.Close();
+                    client_list.Remove(n);
+                    connected = false;
                 }
+
             }
         }
 
