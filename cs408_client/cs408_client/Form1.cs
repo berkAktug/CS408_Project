@@ -112,12 +112,12 @@ namespace cs408_client
                     else if (server_response == "#answer") // state 3
                     {
                         Byte[] buff = new byte[1024];
-                        int r = client.Receive(buffer);
+                        int r = client.Receive(buff);
                         if (r <= 0)
                         {
                             throw new SocketException();
                         }
-                        string text = Encoding.Default.GetString(buffer);
+                        string text = Encoding.Default.GetString(buff);
                         box_report.AppendText("\nPlease answer the fallowing question: " + text);
 
                         box_question.Enabled = false;
@@ -155,16 +155,6 @@ namespace cs408_client
             btn_disconnect.Enabled = false;
             btn_connect.Enabled = true;
             btn_send.Enabled = false;
-        }
-
-        private void ReceiveResponse()
-        {
-            var buffer = new byte[2048];
-            int received = client.Receive(buffer, SocketFlags.None);
-            if (received == 0) return;
-            var data = new byte[received];
-            Array.Copy(buffer, data, received);
-            string text = Encoding.ASCII.GetString(data);
         }
 
         /// <summary>
@@ -209,6 +199,7 @@ namespace cs408_client
 
         private void btn_ready_Click(object sender, EventArgs e)
         {
+            box_report.AppendText("\nUser is ready, sir!");
             SendString("$ready");
             btn_send.Enabled = true;
             btn_connect.Enabled = true;

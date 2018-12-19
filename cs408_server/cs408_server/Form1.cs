@@ -188,7 +188,7 @@ namespace cs408_server
                         if (allready)
                         {
                             //client_list.Sort();
-                            RTB_Writer("\n" + n.name + "'s turn to ask");
+                            RTB_Writer("\n" + client_list[counter].name + "'s turn to ask");
                             client_list[counter].client_socket.Send(Encoding.Default.GetBytes("#ask"));
                             counter++;
                         }
@@ -197,14 +197,14 @@ namespace cs408_server
                     {
                         RTB_Writer("\n" + n.name + "'s turn\n");
                         Byte[] buff = new byte[1024];
-                        int r = n.client_socket.Receive(buffer);
+                        int r = n.client_socket.Receive(buff);
                         if (r <= 0)
                         {
                             throw new SocketException();
                         }
-                        string text = Encoding.Default.GetString(buffer);
+                        string text = Encoding.Default.GetString(buff);
                         question = text.Substring(0, text.IndexOf("?"));
-                        realanswer = text.Substring(text.IndexOf("?") + 1);
+                        realanswer = text.Substring(text.IndexOf("?") + 1, text.IndexOf("\0"));
 
                         RTB_Writer(n.name + " asked fallowing question: " + question + "\nAnd provided answer as: " + realanswer + "\n");
                         for (int i = 0; i < client_list.Count; i++)
@@ -219,14 +219,18 @@ namespace cs408_server
                     else if (command == "$answer")
                     {
                         Byte[] buff = new byte[1024];
-                        int r = n.client_socket.Receive(buffer);
+                        int r = n.client_socket.Receive(buff);
                         if (r <= 0)
                         {
                             throw new SocketException();
                         }
-                        string text = Encoding.Default.GetString(buffer);
+                        string text = Encoding.Default.GetString(buff);
                         n.guess = text.Substring(0, text.IndexOf("\0"));
-                        RTB_Writer("\n" + n.name + " guessed " + n.guess);
+                        if (n.guess.Contains(n.name) && n.guess.IndexOf(n.name) == (n.guess.Length - (n.name.Length + 1)))
+                        {
+                            n.guess = n.guess.Substring(0, n.guess.IndexOf(n.name));
+                        }
+                        RTB_Writer("\n" + n.name + " guessed " + n.guess + "\n");
                         bool allanswered = true;
                         for (int i = 0; i < client_list.Count; i++)
                         {
@@ -252,18 +256,19 @@ namespace cs408_server
                                     RTB_Writer(client_list[i].name + " lost \n");
                                 }
                             }
-                            client_list[counter].client_socket.Send(Encoding.Default.GetBytes("#ask"));
+                            client_list[counter % (client_list.Count)].client_socket.Send(Encoding.Default.GetBytes("#ask"));
+                            RTB_Writer("\n" + client_list[counter % client_list.Count] + "'s turn to ask");
                             counter++;
                         }
                     }
                     else if (command == "$diconnected")
                     {
-                       
+                        RTB_Writer(n.name + " has disconnected");
                     }
                 }
                 catch
                 {
-
+                    RTB_Writer("Error happened.");
                 }
             }
         }
