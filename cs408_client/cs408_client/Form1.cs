@@ -35,6 +35,8 @@ namespace cs408_client
 
             btn_disconnect.Enabled = false;
             btn_send.Enabled = false;
+            btn_ready.Enabled = false;
+
         }
 
         private void btn_connect_Click(object sender, EventArgs e)
@@ -55,9 +57,9 @@ namespace cs408_client
                 box_report.AppendText("\nConnected to server.");
                 box_nick.Enabled = false;
 
-                btn_send.Enabled = true;
                 btn_disconnect.Enabled = true;
                 btn_connect.Enabled = false;
+                btn_ready.Enabled = true;
             }
             catch
             {
@@ -202,7 +204,7 @@ namespace cs408_client
             box_report.AppendText("\nUser is ready, sir!");
             SendString("$ready");
             btn_send.Enabled = true;
-            btn_connect.Enabled = true;
+            btn_ready.Enabled = false;
         }
     }
 }
